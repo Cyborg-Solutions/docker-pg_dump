@@ -2,22 +2,22 @@
 
 set -e
 
-echo "Job started: $(date)"
+echo "Tarefa iniciada: $(date)"
 
 DATE=$(date +%Y%m%d_%H%M%S)
-FILE="/dump/$PREFIX-$DATE.sql"
 
+for PGDB in $PGDB_LIST; do
+    FILE="/dump/${PREFIX}-${PGDB}-${DATE}.sql"
+    pg_dump -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -Fc -b -v -f "$FILE" -d "$PGDB"
+    gzip "$FILE"
+done
 
-pg_dump -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -Fc -b -v -f "$FILE" -d "$PGDB" 
-gzip "$FILE"
-
-pg_dumpall -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -f /dump/${PREFIX}-roles-${DATE}.sql --no-role-passwords -g	
+pg_dumpall -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -f "/dump/${PREFIX}-roles-${DATE}.sql" --no-role-passwords -g
 gzip "/dump/${PREFIX}-roles-${DATE}.sql"
+
 if [ ! -z "$DELETE_OLDER_THAN" ]; then
-	echo "Deleting old backups: $DELETE_OLDER_THAN"
-	find /dump/* -mmin "+$DELETE_OLDER_THAN" -exec rm {} \;
+    echo "Excluindo backups antigos com mais de $DELETE_OLDER_THAN minutos"
+    find /dump/* -mmin "+$DELETE_OLDER_THAN" -exec rm {} \;
 fi
 
-
-
-echo "Job finished: $(date)"
+echo "Tarefa concluída: $(date)"
