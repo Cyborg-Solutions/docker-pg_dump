@@ -1,7 +1,5 @@
 FROM postgres:latest
-LABEL "nz.co.tuatahifibre.vendor"="Tuatahi First Fibre" \
-      version="1.0" \
-      description="Postgres with ability to run pg_dump"
+MAINTAINER Cristoffer Fairweather <cfairweather@annixa.com> # Previously Ilya Stepanov <dev@ilyastepanov.com>
 
 RUN apt-get update && \
     apt-get install -y cron && \
